@@ -1,0 +1,4 @@
+/.vscode/
+/tests/
+.clang-format
+nbt_viewer
