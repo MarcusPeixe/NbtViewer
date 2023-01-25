@@ -9,8 +9,8 @@ To download and build it for Linux, you must navigate to your target folder,
 open up the terminal, and type:
 
 ```bash
-git clone ...
-cd nbt_viewer
+git clone https://github.com/MarcusPeixe/NbtViewer.git
+cd NbtViewer
 make
 ```
 
