@@ -35,3 +35,5 @@ text NBT. If you want to change that, you can use the options `-p` and `-c`.
 The output of this program can be fed back in as input, so you can save an NBT
 file as text, inspect, modify it, and then run the program to turn it back to
 binary NBT.
+
+---
