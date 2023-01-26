@@ -328,7 +328,10 @@ void print_nbt_tag(Named_tag_t *tag)
         exit(1);
     }
 
-    print_tag_compound(tag->tag);
+    if (tag->name->length)
+        print_named_tag(tag);
+    else
+        print_tag_compound(tag->tag);
 }
 
 inline void indent_line()

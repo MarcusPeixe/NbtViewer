@@ -56,19 +56,38 @@ Named_tag_t *parse_nbt_tag()
     parser_init();
 
     skip_whitespace();
-    Tag_t *tag = parse_TAG_Compound();
-    if (tag) {
-        fprintf(stderr, _OK "Parsed successfully!\n\n" _CLEAR);
-        free_error(global_error);
-        return new_named_tag(TAG_Compound, new_string(0), tag);
+
+    int state = get_state();
+
+    {
+        Named_tag_t *tag = parse_named_tag();
+        
+        if (tag) {
+            fprintf(stderr, _OK "Parsed successfully!\n\n" _CLEAR);
+            free_error(global_error);
+            parser_end();
+            return tag;
+        }
     }
-    else {
-        fprintf(stderr, "\n");
-        print_error(global_error);
-        free_error(global_error);
-        return NULL;
+    
+    {
+        set_state(state);
+        Tag_t *tag = parse_TAG_Compound();
+    
+        if (tag) {
+            fprintf(stderr, _OK "Parsed successfully!\n\n" _CLEAR);
+            free_error(global_error);
+            parser_end();
+            return new_named_tag(TAG_Compound, new_string(0), tag);
+        }
     }
+
+    fprintf(stderr, "\n");
+    print_error(global_error);
+    free_error(global_error);
     parser_end();
+    return NULL;
+
 }
 
 Tag_t *parse_any_data()
@@ -151,6 +170,7 @@ Tag_t *parse_any_data()
     if (longest) {
         set_state(longest_state);
         clear_error();
+        free_error(relevant);
         return longest;
     }
     else if (relevant) {
@@ -978,7 +998,6 @@ static uint8_t next()
 static uint8_t seek()
 {
     if (buf_index >= buf_len) {
-        raise_error(get_state(), "ERROR! Unexpected EOF.");
         raise_error(buf_index, "ERROR! Unexpected EOF.");
         return -1;
     }
@@ -1021,6 +1040,8 @@ void raise_error(int location, const char *message)
 {
     free_error(global_error);
 
+    // fprintf(stderr, _ERR "Error raised: \"%s\"\n", message);
+
     error_t *new = (error_t *) malloc(sizeof(error_t));
     new->previous = NULL;
     new->message = message;
@@ -1031,6 +1052,8 @@ void raise_error(int location, const char *message)
 
 void append_error(int location, const char *message)
 {
+    // fprintf(stderr, _ERR "+ Error appended: \"%s\"\n", message);
+
     error_t *new = (error_t *) malloc(sizeof(error_t));
     new->previous = global_error;
     new->message = message;
